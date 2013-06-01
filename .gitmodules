@@ -1,0 +1,3 @@
+[submodule "vendor/mflib"]
+	path = vendor/mflib
+	url = git://github.com/windylea/mediafire-api-php-library.git
