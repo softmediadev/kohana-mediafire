@@ -36,6 +36,8 @@ $mfinst->fileUpload($file);
 
 #### Methods for Files
 
+---
+
 **$mfinst->fileCollaborate()**: Generate link(s) for multiple people to edit files
 
 **$mfinst->fileCopy()**: Copy a file to a specified folder
