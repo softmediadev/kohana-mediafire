@@ -21,6 +21,19 @@ Kohana::modules(array(
 	'mediafire' => MODPATH.'mediafire',
 ));
 ```
+We create an instance of the class
+
+```php
+$mfinst = MediaFire::instance();
+```
+
+##### Upload a file to MediaFire. #####
+We must first upload the file to our server, then, upload it to MediaFire with the following script:
+```php
+$file = 'path/filename.ext';
+	
+$mfinst->fileUpload($file);
+```
 
 ## To Do
 
