@@ -1,18 +1,18 @@
 ## MediaFire for Kohana
 
-## Requirements
+#### Requirements
 
 You must first register and create a new application in the *My Account* &gt; *Developers* section on MediaFire's website in order to get an Application ID and an API Key to use this class.
 
 Also look at the class source and MediaFire website for documentation of the API : [REST API - MediaFire](http://developers.mediafire.com/index.php/REST_API)
 
-## Installation
+#### Installation
 
-#### Place the files in your modules directory.
+Place the files in your modules directory.
 
-#### Copy `MODPATH.menu/config/mediafire.php` into `APPPATH/config/mediafire.php` and customize.
+Copy `MODPATH.menu/config/mediafire.php` into `APPPATH/config/mediafire.php` and customize.
 
-#### Activate the module in `bootstrap.php`.
+Activate the module in `bootstrap.php`.
 
 ```php
 <?php
@@ -22,24 +22,23 @@ Kohana::modules(array(
 ));
 ```
 We create an instance of the class
-
 ```php
 $mfinst = MediaFire::instance();
 ```
 
-##### Upload a file to MediaFire. #####
-We must first upload the file to our server, then, upload it to MediaFire with the following script:
+##### Upload a file to MediaFire.
+We must first upload the file to your server, then, upload it to MediaFire with the following script:
 ```php
 $file = 'path/filename.ext';
 	
 $mfinst->fileUpload($file);
 ```
 
-## To Do
+#### Methods for files
 
-Documentation :)
+**fileCollaborate**: Generate link(s) for multiple people to edit files
 
-## ABOUT AND LICENSE
+#### ABOUT AND LICENSE
 
 Copyright (c) 2013, Soft Media Development. All right reserved. Website: www.smd.com.pa
 
