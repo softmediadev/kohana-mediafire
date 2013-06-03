@@ -62,6 +62,7 @@ $mfinst->fileUpload($file);
 
 **$mfinst->filePollUpload()**: Check for the status of a current Upload
 
+---
 
 #### ABOUT AND LICENSE
 
