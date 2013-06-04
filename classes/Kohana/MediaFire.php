@@ -71,17 +71,6 @@ class Kohana_MediaFire
 	}
 	
 	/**
-     * Generates a signature to be used in upcoming API requests
-     *
-     * @access protected
-     * @return string Returns a SHA1-hashed string
-     */
-	public function userGetSignature()
-	{
-		return $this->mflib->userGetSignature();
-	}
-	
-	/**
      * Generate link(s) for multiple people to edit files
      *
      * If email addresses are passed, contacts are created. If email addresses
