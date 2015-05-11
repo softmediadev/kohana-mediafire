@@ -10,12 +10,11 @@ Also look at the class source and MediaFire website for documentation of the API
 
 Place the files in your modules directory.
 
-Copy `MODPATH.menu/config/mediafire.php` into `APPPATH/config/mediafire.php` and customize.
+Copy `MODPATH/config/mediafire.php` into `APPPATH/config/mediafire.php` and customize.
 
 Activate the module in `bootstrap.php`.
 
 ```php
-<?php
 Kohana::modules(array(
 	...
 	'mediafire' => MODPATH.'mediafire',
