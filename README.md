@@ -4,7 +4,7 @@
 
 You must first register and create a new application in the *My Account* &gt; *Developers* section on MediaFire's website in order to get an Application ID and an API Key to use this class.
 
-Also look at the class source and MediaFire website for documentation of the API : [REST API - MediaFire](http://developers.mediafire.com/index.php/REST_API)
+Also look at the class source and MediaFire website for documentation of the API : [API - MediaFire](https://www.mediafire.com/developers/)
 
 #### Installation
 
