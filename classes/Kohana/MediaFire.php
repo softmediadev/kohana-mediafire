@@ -1,11 +1,12 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
-class Kohana_MediaFire 
-{
+class Kohana_MediaFire {
+
 	protected $mflib;
 	protected $token;
 	protected $config;
 	protected $uploadkey;
+	protected static $instance;
 	
     /**
      * MediaFire::instance()
@@ -15,7 +16,10 @@ class Kohana_MediaFire
      */
     public static function instance( array $config = NULL )
     {
-        return new MediaFire($config);
+		if ( ! isset(self::$instance))
+			self::$instance = new MediaFire($config);
+
+		return self::$instance;
     }
     
     /**
@@ -43,12 +47,11 @@ class Kohana_MediaFire
      *
      * @access public
      * @see userRenewSessionToken()
-     * @return string|bool Returns a 10-minute Access Session Token on success,
-        otherwise FALSE if an error occurred
+     * @return string|bool Returns a 10-minute Access Session Token on success, otherwise FALSE if an error occurred
      */
 	public function userGetSessionToken()
 	{
-		return $this->mflib->userGetSessionToken();
+		return $this->mflib->userGetSessionToken($this->config['version']);
 	}
 	
 	/**
@@ -62,8 +65,7 @@ class Kohana_MediaFire
      * generated and returned.
      *
      * @access public
-     * @return string|bool Returns a new 10-minute Access Session Token on
-        success, otherwise FALSE if an error occurred
+     * @return string|bool Returns a new 10-minute Access Session Token on success, otherwise FALSE if an error occurred
      */
 	public function userRenewSessionToken()
 	{
@@ -78,22 +80,12 @@ class Kohana_MediaFire
      * daily collaboration link request count.
      *
      * @access public
-     * @param array|string $quickkey (Optional) The quickkey or comma-separated
-        list of quickkeys to be shared. If quickkeys are not passed,
-        the daily sharing limit is returned
-     * @param array|string $emails (Optional) A comma-separated list of email
-        addresses to which an edit link will be sent. Can be an array instead
-     * @param int $duration (Optional) The number of minutes the share link
-        is valid. If an email address was not passed, the duration parameter is
-        ignored, and the edit link is valid for 30 days
-     * @param string $message (Optional) A short message to be sent with the
-        notification emails. If email addresses were not passed, the message
-        parameter is ignored
-     * @param bool $public (Optional) If this parameter is set to TRUE,
-        multiple people can use the same link to edit the document.
-        The default is FALSE.
-     * @return array|bool|string Returns an array contain the collaboration
-        links and the number of daily collaboration link request count
+     * @param array|string $quickkey (Optional) The quickkey or comma-separated list of quickkeys to be shared. If quickkeys are not passed, the daily sharing limit is returned
+     * @param array|string $emails (Optional) A comma-separated list of email addresses to which an edit link will be sent. Can be an array instead
+     * @param int $duration (Optional) The number of minutes the share link is valid. If an email address was not passed, the duration parameter is ignored, and the edit link is valid for 30 days
+     * @param string $message (Optional) A short message to be sent with the notification emails. If email addresses were not passed, the message parameter is ignored
+     * @param bool $public (Optional) If this parameter is set to TRUE, multiple people can use the same link to edit the document. The default is FALSE.
+     * @return array|bool|string Returns an array contain the collaboration links and the number of daily collaboration link request count
      */
 	public function fileCollaborate($quickkey = NULL, $emails = NULL, $duration = NULL, $message = NULL, $public = NULL, $emailNotification = NULL)
 	{
@@ -108,11 +100,8 @@ class Kohana_MediaFire
      * Private files not owned by the session caller cannot be copied.
      *
      * @access public
-     * @param array|string $quickkey The quickkey or a list of quickkeys that
-        identify the files to be saved
-     * @param string $folderKey (Optional) The key that identifies the
-        destination folder. If omitted, the destination folder will be the
-        root folder (Myfiles)
+     * @param array|string $quickkey The quickkey or a list of quickkeys that identify the files to be saved
+     * @param string $folderKey (Optional) The key that identifies the destination folder. If omitted, the destination folder will be the root folder (Myfiles)
      * @return string
      */
 	public function fileCopy($quickkey, $folderKey = NULL)
@@ -124,11 +113,8 @@ class Kohana_MediaFire
      * Deletes a single file or multiple files
      *
      * @access public
-     * @param array|string $quickkey The quickkey that identifies the file.
-        You can also specify multiple quickkeys separated by comma or just put
-        them into an array
-     * @return array|bool Returns an array contains epoch and revision
-        number, otherwise FALSE if an error occurred
+     * @param array|string $quickkey The quickkey that identifies the file. You can also specify multiple quickkeys separated by comma or just put them into an array
+     * @return array|bool Returns an array contains epoch and revision number, otherwise FALSE if an error occurred
      */
 	public function fileDelete($quickkey)
 	{
@@ -139,9 +125,7 @@ class Kohana_MediaFire
      * Returns details of a single file or multiple files
      *
      * @access public
-     * @param array|string $quickkey The quickkey that identifies the file.
-        You can also specify multiple quickkeys separated by comma or just put
-        them into an array
+     * @param array|string $quickkey The quickkey that identifies the file. You can also specify multiple quickkeys separated by comma or just put them into an array
      * @return array|bool Returns an array contains details of the file(s)
      */
 	public function fileGetInfo($quickkey)
@@ -158,13 +142,9 @@ class Kohana_MediaFire
      * an error message is returned explaining the reason
      *
      * @access public
-     * @param array|string $quickkey The quickkey that identifies the file.
-        You can also specify multiple quickkeys separated by comma or just put
-        them into an array
-     * @param string $linkType (Optional) Specify which link type is to be
-        returned. If not passed, all link types are returned.
-     * @return array|bool Returns an array contains links of the specified
-        files, otherwise FALSE if an error occurred
+     * @param array|string $quickkey The quickkey that identifies the file. You can also specify multiple quickkeys separated by comma or just put them into an array
+     * @param string $linkType (Optional) Specify which link type is to be returned. If not passed, all link types are returned.
+     * @return array|bool Returns an array contains links of the specified files, otherwise FALSE if an error occurred
      */
 	public function fileGetLinks($quickkey, $linkType = NULL)
 	{
@@ -175,14 +155,9 @@ class Kohana_MediaFire
      * Moves a single file or multiple files to a folder
      *
      * @access public
-     * @param array|string $quickkey The quickkey that identifies the file.
-        You can also specify multiple quickkeys separated by comma or just put
-        them into an array
-     * @param string $folderKey (Optional) The key that identifies the
-        destination folder. If omitted, the destination folder will be the
-        root folder (My files)
-     * @return array|bool Returns an array contains epoch and revision
-        number, otherwise FALSE if an error occurred
+     * @param array|string $quickkey The quickkey that identifies the file. You can also specify multiple quickkeys separated by comma or just put them into an array
+     * @param string $folderKey (Optional) The key that identifies the destination folder. If omitted, the destination folder will be the root folder (My files)
+     * @return array|bool Returns an array contains epoch and revision number, otherwise FALSE if an error occurred
      */
 	public function fileMove($quickkey, $folderKey = NULL)
 	{
@@ -194,13 +169,9 @@ class Kohana_MediaFire
      * configure/update an existing one-time download link
      *
      * @access public
-     * @param array|string $quickkey The quickkey of the file to generate the
-        one-time download link. If it is not passed, no link is generated, and
-        the daily limit will be returned.
-     * @param string $information (Optional) The updated information of the
-        new/existing one-time download link
-     * @return array|bool Returns an array on success, otherwise FALSE if an
-        error occurred
+     * @param array|string $quickkey The quickkey of the file to generate the one-time download link. If it is not passed, no link is generated, and the daily limit will be returned.
+     * @param string $information (Optional) The updated information of the new/existing one-time download link
+     * @return array|bool Returns an array on success, otherwise FALSE if an error occurred
      */
 	public function fileOneTimeDownload($quickkey, $information)
 	{
@@ -215,10 +186,8 @@ class Kohana_MediaFire
      *
      * @access public
      * @param string $quickkey The quickkey that identifies the file
-     * @param array $information An associative array contains the updated
-        file information
-     * @return array|bool Returns an array contains epoch and revision
-        number, otherwise FALSE if an error occurred
+     * @param array $information An associative array contains the updated file information
+     * @return array|bool Returns an array contains epoch and revision number, otherwise FALSE if an error occurred
      */
 	public function fileUpdateInfo($quickkey, $information)
 	{
@@ -230,12 +199,9 @@ class Kohana_MediaFire
      * with the same file extension can be used with this operation
      *
      * @access public
-     * @param string $fromQuickkey The quickkey of the file to be overriden.
-        After this operation, this quickkey will be invalid
-     * @param string $toQuickkey The new quickkey that will point to the file
-        previously identified by fromQuickkey
-     * @return array|bool Returns an array contains epoch and revision
-        number, otherwise FALSE if an error occurred
+     * @param string $fromQuickkey The quickkey of the file to be overriden. After this operation, this quickkey will be invalid
+     * @param string $toQuickkey The new quickkey that will point to the file previously identified by fromQuickkey
+     * @return array|bool Returns an array contains epoch and revision  number, otherwise FALSE if an error occurred
      */
 	public function fileUpdate($fromQuickkey, $toQuickkey)
 	{
@@ -247,10 +213,8 @@ class Kohana_MediaFire
      *
      * @access public
      * @param string $quickkey The quickkey that identifies the file
-     * @param string $password (Optional) The new password to be set. To remove
-        the password protection, pass an empty string
-     * @return array|bool Returns an array contains epoch and revision
-        number, otherwise FALSE if an error occurred
+     * @param string $password (Optional) The new password to be set. To remove the password protection, pass an empty string
+     * @return array|bool Returns an array contains epoch and revision number, otherwise FALSE if an error occurred
      */
 	public function fileUpdatePassword($quickkey, $password = NULL)
 	{
@@ -265,12 +229,9 @@ class Kohana_MediaFire
      *
      * @access public
      * @param string $filename Path to the file to be uploaded
-     * @param string $uploadKey (Optional) The quickkey of the destination
-      folder. Default is 'myfiles', which means that the uploaded file will be
-      stored in the root folder (My Files)
+     * @param string $uploadKey (Optional) The quickkey of the destination folder. Default is 'myfiles', which means that the uploaded file will be stored in the root folder (My Files)
      * @param string $customName (Optional) Path to the file to be uploaded
-     * @return bool|string Returns the upload key of the file, otherwise FALSE
-        if an error occurred
+     * @return bool|string Returns the upload key of the file, otherwise FALSE if an error occurred
      */
 	public function fileUpload($filename, $uploadKey = 'myfiles', $customName = NULL)
 	{
@@ -292,8 +253,7 @@ class Kohana_MediaFire
      * @access public
      * @see fileUpload()
      * @param string $uploadKey The upload key returned from method 'fileUpload'
-     * @return array|bool Returns an array contains information of the
-        upload process
+     * @return array|bool Returns an array contains information of the upload process
      */
 	public function filePollUpload($uploadKey = NULL)
 	{
@@ -307,11 +267,8 @@ class Kohana_MediaFire
      * Adds shared folders to the account
      *
      * @access public
-     * @param array|string $folderKey The key that identifies the folder to be
-        attached. You can also specify multiple folderkeys separated by comma
-        or just put them into an array
-     * @return array|bool Returns an array contains epoch and revision
-        number, otherwise FALSE if an error occurred
+     * @param array|string $folderKey The key that identifies the folder to be attached. You can also specify multiple folderkeys separated by comma or just put them into an array
+     * @return array|bool Returns an array contains epoch and revision number, otherwise FALSE if an error occurred
      */
 	public function folderAttachForeign($folderKey)
 	{
@@ -323,11 +280,8 @@ class Kohana_MediaFire
      *
      * @access public
      * @param string $folderName The name of the new folder to be created
-     * @param string $parentKey (Optional) The key that identifies an existing
-        folder in which the new folder is to be created. If not specified,
-        the new folder will be created in the root folder (My files)
-     * @return array|bool Returns an array contain the quickkey, upload key and
-        created date of the newly created folder; otherwise FALSE if an error occurred
+     * @param string $parentKey (Optional) The key that identifies an existing folder in which the new folder is to be created. If not specified, the new folder will be created in the root folder (My files)
+     * @return array|bool Returns an array contain the quickkey, upload key and created date of the newly created folder; otherwise FALSE if an error occurred
      */
 	public function folderCreate($folderName, $parentKey = NULL)
 	{
@@ -338,11 +292,8 @@ class Kohana_MediaFire
      * Removes shared folders from the account
      *
      * @access public
-     * @param array|string $folderKey The key that identifies the folder to be
-        deattached. You can also specify multiple folderkeys separated by comma
-        or just put them into an array
-     * @return array|bool Returns an array contains epoch and revision
-        number, otherwise FALSE if an error occurred
+     * @param array|string $folderKey The key that identifies the folder to be deattached. You can also specify multiple folderkeys separated by comma or just put them into an array
+     * @return array|bool Returns an array contains epoch and revision number, otherwise FALSE if an error occurred
      */
 	public function folderDetachForeign($folderKey)
 	{
@@ -353,11 +304,8 @@ class Kohana_MediaFire
      * Deletes a folder
      *
      * @access public
-     * @param array|string $folderKey The key that identifies the folder to be
-        moved. You can also specify multiple folderkeys separated by comma or
-        just put them into an array
-     * @return array|bool Returns an array contains epoch and revision
-        number, otherwise FALSE if an error occurred
+     * @param array|string $folderKey The key that identifies the folder to be moved. You can also specify multiple folderkeys separated by comma or just put them into an array
+     * @return array|bool Returns an array contains epoch and revision number, otherwise FALSE if an error occurred
      */
 	public function folderDelete($folderKey)
 	{
@@ -368,20 +316,12 @@ class Kohana_MediaFire
      * Returns a folder's immediate sub folders and files.
      *
      * @access public
-     * @param string $folderKey (Optional) If folder_key is not passed, the API
-        will return the root folder content (session token is required)
-     * @param string $contentType (Optional) Request what type of content.
-        Can be 'folders' or 'files'. Default is 'folders'
-     * @param string $orderBy (Optional) Can be 'name', 'created', 'size',
-        'downloads' (default is 'name'). When requesting folders, only 'name'
-        and 'created' are considered. If 'order_by' is set to anything other
-        than 'name' or 'created' when requesting folders, the output order
-        will default to 'name'
-     * @param string $orderDirection (Optional) Order direction. Can be 'asc'
-        or 'desc' (default 'asc')
+     * @param string $folderKey (Optional) If folder_key is not passed, the API will return the root folder content (session token is required)
+     * @param string $contentType (Optional) Request what type of content. Can be 'folders' or 'files'. Default is 'folders'
+     * @param string $orderBy (Optional) Can be 'name', 'created', 'size', 'downloads' (default is 'name'). When requesting folders, only 'name' and 'created' are considered. If 'order_by' is set to anything other than 'name' or 'created' when requesting folders, the output order will default to 'name'
+     * @param string $orderDirection (Optional) Order direction. Can be 'asc' or 'desc' (default 'asc')
      * @param int $chunk (Optional) The chunk number starting from 1
-     * @return array|bool|null Returns an array contains folder's contents,
-        otherwise FALSE if an error occurred
+     * @return array|bool|null Returns an array contains folder's contents, otherwise FALSE if an error occurred
      */
 	public function folderGetContent($folderKey = NULL, $contentType = 'folders', $orderBy = NULL, $orderDirection = NULL, $chunk = NULL)
 	{
@@ -393,8 +333,7 @@ class Kohana_MediaFire
      *
      * @access public
      * @param array|string $folderKey The key that identifies the folder
-     * @return array|bool Returns an array contains folder depth, otherwise
-        FALSE if an error occurred
+     * @return array|bool Returns an array contains folder depth, otherwise FALSE if an error occurred
      */
 	public function folderGetDepth($folderKey)
 	{
@@ -405,9 +344,7 @@ class Kohana_MediaFire
      * Returns a list of the a folder's details
      *
      * @access public
-     * @param array|string $folderKey The key that identifies the folder.
-        You can also specify multiple folderkeys separated by comma or just put
-        them into an array
+     * @param array|string $folderKey The key that identifies the folder. You can also specify multiple folderkeys separated by comma or just put them into an array
      * @return array|bool Returns an array contains details of the folder(s)
      */
 	public function folderGetInfo($folderKey)
@@ -425,8 +362,7 @@ class Kohana_MediaFire
      *
      * @access public
      * @param array|string $folderKey The key that identifies the folder
-     * @return array|bool Returns an array contains epoch and revision
-        number for the folder, otherwise FALSE if an error occurred
+     * @return array|bool Returns an array contains epoch and revision number for the folder, otherwise FALSE if an error occurred
      */
 	public function folderGetRevision($folderKey)
 	{
@@ -438,14 +374,10 @@ class Kohana_MediaFire
      *
      * @access public
      * @param string $folderKey The key that identifies the folder
-     * @param string $contentFilter (Optional) Can be 'info', 'files',
-        'folders', 'content' or 'all' (default 'all').
-        "content" refers to both files and folders.
-     * @param int $start (Optional) Request to return results starting from
-        this number
+     * @param string $contentFilter (Optional) Can be 'info', 'files','folders', 'content' or 'all' (default 'all'). "content" refers to both files and folders.
+     * @param int $start (Optional) Request to return results starting from this number
      * @param int $limit (Optional) The maximum results to be returned
-     * @return array|bool|null Returns an array contains folder sibling,
-        otherwise FALSE if an error occurred
+     * @return array|bool|null Returns an array contains folder sibling, otherwise FALSE if an error occurred
      */
 	public function folderGetSiblings($folderKey, $contentFilter = 'all', $start = NULL, $limit = NULL)
 	{
@@ -457,14 +389,9 @@ class Kohana_MediaFire
      * foreign folders
      *
      * @access public
-     * @param array|string $folderKeySrc The key that identifies the folder
-        to be moved. You can also specify multiple folderkeys separated by
-        comma or just put them into an array
-     * @param string $folderKeyDst (Optional) The key that identifies the
-        destination folder. If omitted, the destination folder will be the
-        root folder (My Files)
-     * @return array|bool Returns an array contains epoch and revision
-        number, otherwise FALSE if an error occurred
+     * @param array|string $folderKeySrc The key that identifies the folder to be moved. You can also specify multiple folderkeys separated by comma or just put them into an array
+     * @param string $folderKeyDst (Optional) The key that identifies the destination folder. If omitted, the destination folder will be the root folder (My Files)
+     * @return array|bool Returns an array contains epoch and revision number, otherwise FALSE if an error occurred
      */
 	public function folderMove($folderKeySrc, $folderKeyDst = NULL)
 	{
@@ -475,12 +402,9 @@ class Kohana_MediaFire
      * Searches the content of the given folder
      *
      * @access public
-     * @param string $searchText The keywords to search for in filenames,
-        folder names, descriptions and tags
-     * @param string $folderKey (Optional) If folder_key is not passed, the API
-        will return the root folder content ($sessionToken is required this point)
-     * @return array|bool|null Returns an array contains the search result,
-        otherwise FALSE if an error occurred
+     * @param string $searchText The keywords to search for in filenames, folder names, descriptions and tags
+     * @param string $folderKey (Optional) If folder_key is not passed, the API will return the root folder content ($sessionToken is required this point)
+     * @return array|bool|null Returns an array contains the search result, otherwise FALSE if an error occurred
      */
 	public function folderSearch($searchText, $folderKey = NULL)
 	{
@@ -495,10 +419,8 @@ class Kohana_MediaFire
      *
      * @access public
      * @param string $folderKey The quickkey that identifies the folder
-     * @param array $information An associative array contains the updated
-        folder information
-     * @return array|bool Returns an array contains epoch and revision number,
-        otherwise FALSE if an error occurred
+     * @param array $information An associative array contains the updated folder information
+     * @return array|bool Returns an array contains epoch and revision number, otherwise FALSE if an error occurred
      */
 	public function folderUpdate($folderKey, $information)
 	{
@@ -520,8 +442,7 @@ class Kohana_MediaFire
      * Returns all the configuration data about the MediaFire system.
      *
      * @access public
-     * @return string Returns an array contains the configuration data about
-        the MediaFire system
+     * @return string Returns an array contains the configuration data about the MediaFire system
      */
 	public function systemInfo()
 	{
@@ -533,8 +454,7 @@ class Kohana_MediaFire
      *
      * @access public
      * @param bool $groupByFiletype Whether to group lists by filetype or not
-     * @return string Returns an array contains list of all supported document
-        types for preview
+     * @return string Returns an array contains list of all supported document types for preview
      */
 	public function systemSupportedMedia($groupByFiletype = FALSE)
 	{
@@ -546,8 +466,7 @@ class Kohana_MediaFire
      *
      * @access public
      * @param bool $groupByFiletype Whether to group lists by filetype or not
-     * @return string Returns an array contains list of all editable document
-        types
+     * @return string Returns an array contains list of all editable document types
      */
 	public function systemEditableMedia($groupByFiletype = FALSE)
 	{
@@ -571,12 +490,9 @@ class Kohana_MediaFire
      * @access public
      * @param array|string $quickkey The quickkey that identify the files
      * @param array|string $sizeId The output image resolution
-     * @param array|string $saveAs (Optional) Path to the file to which the
-        binary data will be written
-     * @param array|string $page (Optional) The document's page to be converted.
-        Default is 'intitial'
-     * @param array|string $output (Optional) The output format for document
-        conversion. Default is 'pdf'
+     * @param array|string $saveAs (Optional) Path to the file to which the binary data will be written
+     * @param array|string $page (Optional) The document's page to be converted. Default is 'intitial'
+     * @param array|string $output (Optional) The output format for document conversion. Default is 'pdf'
      * @return bool|string See below
      */
 	public function mediaConversion($quickkey, $saveAs = NULL, $sizeId = '2', $page = 'initial', $output = 'pdf')
@@ -612,10 +528,8 @@ class Kohana_MediaFire
      * Returns a list of the user's personal information
      *
      * @access public
-     * @param string $singleInfo Instead of returning all of the user's
-        personal information, returns a single value only. Default is NULL
-     * @return bool|array|string Returns an array when $singleInfo is NULL,
-        otherwise a string
+     * @param string $singleInfo Instead of returning all of the user's personal information, returns a single value only. Default is NULL
+     * @return bool|array|string Returns an array when $singleInfo is NULL, otherwise a string
      */
 	public function userGetInfo($singleInfo = NULL)
 	{
@@ -645,8 +559,7 @@ class Kohana_MediaFire
      * <code>$mflib->userUpdate(array("first_name" => "John", "last_name" => "Doe"));</code>
      *
      * @access public
-     * @param array $information An associative array contains the updated
-        user's personal information
+     * @param array $information An associative array contains the updated user's personal information
      * @return bool Returns TRUE on success
      */
 	public function userUpdate($information)
