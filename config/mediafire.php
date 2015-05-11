@@ -2,8 +2,9 @@
  
 return array
 (
-	'appId' => 'your-app-id',
-    'apiKey' => 'your-app-key',
-    'email' => 'your-app-email',
-    'password' => 'your-app-password',
+	'appId' 	=> '',
+	'apiKey' 	=> '',
+	'email' 	=> '',
+	'password' 	=> '',
+	'version' 	=> FALSE
 );
